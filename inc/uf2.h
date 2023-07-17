@@ -321,6 +321,11 @@ void RGBLED_set_color(uint32_t color);
 #define LED_RX_TGL()
 #endif
 
+// For BOOT_LOAD_PIN
+#if defined(BOOT_LOAD_PIN)
+#define BOOT_PIN_MASK (1U << (BOOT_LOAD_PIN & 0x1f))
+#endif
+
 extern uint32_t timerHigh, resetHorizon;
 void timerTick(void);
 void delay(uint32_t ms);
