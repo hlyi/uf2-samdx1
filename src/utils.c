@@ -3,6 +3,9 @@
 
 static uint32_t timerLow;
 uint32_t timerHigh, resetHorizon;
+#ifdef SRAM_BL_SIZE
+bool bootFromSram = false;
+#endif
 
 void __attribute__ ((noinline)) delay(uint32_t ms) {
     // These multipliers were determined empirically and are only approximate.
@@ -78,6 +81,13 @@ int writeNum(char *buf, uint32_t n, bool full) {
 
 void resetIntoApp() {
     // reset without waiting for double tap (only works for one reset)
+#ifdef SRAM_BL_SIZE
+	if ( bootFromSram) {
+		SCB->VTOR = SRAM_BASE_ADDR;
+		uint32_t app_start_address = SRAM_BASE_ADDR +4;
+		asm("bx %0" ::"r"(app_start_address));
+	}
+#endif
     RGBLED_set_color(COLOR_LEAVE);
     *DBL_TAP_PTR = DBL_TAP_MAGIC_QUICK_BOOT;
     NVIC_SystemReset();

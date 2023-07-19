@@ -326,6 +326,9 @@ void RGBLED_set_color(uint32_t color);
 #define BOOT_PIN_MASK (1U << (BOOT_LOAD_PIN & 0x1f))
 #endif
 
+#ifdef SRAM_BL_SIZE
+extern bool bootFromSram;
+#endif
 extern uint32_t timerHigh, resetHorizon;
 void timerTick(void);
 void delay(uint32_t ms);
