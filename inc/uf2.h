@@ -56,7 +56,7 @@
 // Support Human Interface Device (HID) - serial, flashing and debug
 #define USE_HID 1 // 788 bytes
 // Expose HID via WebUSB
-#define USE_WEBUSB 1
+#define USE_WEBUSB 0
 // Doesn't yet disable code, just enumeration
 #define USE_MSC 1
 
@@ -326,6 +326,9 @@ void RGBLED_set_color(uint32_t color);
 #define BOOT_PIN_MASK (1U << (BOOT_LOAD_PIN & 0x1f))
 #endif
 
+#ifdef SRAM_BL_SIZE
+extern bool bootFromSram;
+#endif
 extern uint32_t timerHigh, resetHorizon;
 void timerTick(void);
 void delay(uint32_t ms);

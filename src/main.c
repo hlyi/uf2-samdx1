@@ -186,6 +186,10 @@ int main(void) {
         while (1) {
         }
 
+#ifdef SRAM_BL_SIZE
+    bootFromSram = false;
+#endif
+
 #if defined(SAMD21)
     // Check for voltage too low, and set up brownout protection.
     // Code largely taken from https://blog.thea.codes/sam-d21-brown-out-detector/ (thanks!)
