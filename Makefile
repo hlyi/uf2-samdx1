@@ -32,21 +32,21 @@ ifeq ($(CHIP_FAMILY), samd21)
 BOOTLOADER_SIZE=8192
 SRAM_BASE_ADDR=0x20000000
 	ifeq ($(USE_SRAM_BL_FLASH),1)
-	CFLAGS			+= -DSRAM_BASE_ADDR=$(SRAM_BASE_ADDR) -DSRAM_BL_SIZE=0x2800
+		CFLAGS				+= -DSRAM_BASE_ADDR=$(SRAM_BASE_ADDR) -DSRAM_BL_SIZE=0x2800
 		ifdef CONV_SRAM_BL
-			UPDATE_BL_OFST		=  $(BOOTLOADER_SIZE)
+			UPDATE_BL_OFST		= $(BOOTLOADER_SIZE)
 			SELF_LINKER_SCRIPT	= scripts/samd21j18a_self.ld
 		else
 			UPDATE_BL_OFST		= $(SRAM_BASE_ADDR)
 			SELF_LINKER_SCRIPT	= scripts/samd21j18a_self_sram_bl.ld
 		endif
-		LINKER_SCRIPT		= scripts/samd21j17a_sram_bl.ld
+		LINKER_SCRIPT			= scripts/samd21j17a_sram_bl.ld
 	else
 
-		UPDATE_BL_OFST		=  $(BOOTLOADER_SIZE)
-		LINKER_SCRIPT=scripts/samd21j18a.ld
-		SELF_LINKER_SCRIPT=scripts/samd21j18a_self.ld
-endif
+		UPDATE_BL_OFST			= $(BOOTLOADER_SIZE)
+		LINKER_SCRIPT			= scripts/samd21j18a.ld
+		SELF_LINKER_SCRIPT		= scripts/samd21j18a_self.ld
+	endif
 endif
 
 ifeq ($(CHIP_FAMILY), samd51)
