@@ -138,7 +138,9 @@ int main(void) {
 
     /* We have determined we should stay in the monitor. */
     /* System initialization */
+#ifndef SRAM_BL_SIZE
     system_init();
+#endif
     __disable_irq();
     __DMB();
 
