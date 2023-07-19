@@ -141,6 +141,7 @@ int main(void) {
 #ifdef SRAM_BL_SIZE
     SysTick_Config(1000);
     current_cpu_frequency_MHz = 48;
+    bootFromSram = true;	// allow next set_fuses_and_bootprot to boot into sram again
 #else
     system_init();
 #endif
@@ -187,6 +188,10 @@ int main(void) {
     }
 
     logmsg("Update successful!");
+
+#ifdef SRAM_BL_SIZE
+    bootFromSram = false;
+#endif
 
     // re-base int vector back to bootloader, so that the flash erase
     // below doesn't write over the vectors.

@@ -84,6 +84,7 @@ void resetIntoApp() {
 #ifdef SRAM_BL_SIZE
 	if ( bootFromSram) {
 		SCB->VTOR = SRAM_BASE_ADDR;
+                __set_MSP(*(uint32_t *)SRAM_BASE_ADDR);
 		uint32_t app_start_address = *(uint32_t *) (SRAM_BASE_ADDR +4);
 		asm("bx %0" ::"r"(app_start_address));
 	}

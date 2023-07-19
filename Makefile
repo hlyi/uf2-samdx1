@@ -38,7 +38,7 @@ SRAM_BASE_ADDR=0x20000000
 			SELF_LINKER_SCRIPT	= scripts/samd21j18a_self.ld
 		else
 			UPDATE_BL_OFST		= $(SRAM_BASE_ADDR)
-			SELF_LINKER_SCRIPT	= scripts/samd21j18a_self_sram_bl.ld
+			SELF_LINKER_SCRIPT	= scripts/samd21j17a_self_sram_bl.ld
 		endif
 		LINKER_SCRIPT			= scripts/samd21j17a_sram_bl.ld
 	else
