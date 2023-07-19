@@ -138,7 +138,10 @@ int main(void) {
 
     /* We have determined we should stay in the monitor. */
     /* System initialization */
-#ifndef SRAM_BL_SIZE
+#ifdef SRAM_BL_SIZE
+    SysTick_Config(1000);
+    current_cpu_frequency_MHz = 48;
+#else
     system_init();
 #endif
     __disable_irq();
