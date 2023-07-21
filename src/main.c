@@ -91,7 +91,6 @@ extern int8_t led_tick_step;
     #define RESET_CONTROLLER RSTC
 #endif
 
-
 /**
  * \brief Check the application startup condition
  *
