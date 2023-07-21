@@ -138,13 +138,8 @@ int main(void) {
 
     /* We have determined we should stay in the monitor. */
     /* System initialization */
-//#ifdef SRAM_BL_SIZE
-//    SysTick_Config(1000);
-//    current_cpu_frequency_MHz = 48;
-//    bootFromSram = true;	// allow next set_fuses_and_bootprot to boot into sram again
-//#else
     system_init();
-//#endif
+
     __disable_irq();
     __DMB();
 
@@ -189,9 +184,6 @@ int main(void) {
 
     logmsg("Update successful!");
 
-//#ifdef SRAM_BL_SIZE
-//    bootFromSram = false;
-//#endif
     *DBL_TAP_PTR = 0;
 
     // re-base int vector back to bootloader, so that the flash erase

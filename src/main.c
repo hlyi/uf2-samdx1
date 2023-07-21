@@ -104,7 +104,7 @@ static void check_start_application(void) {
     uint32_t	addr_limit = boot_sram ? SRAM_BASE_ADDR+SRAM_BL_SIZE : FLASH_SIZE;
 
     app_start_address = *(uint32_t *)( base_addr + 4 );
-    if ( app_start_address < base_addr || app_start_address < addr_limit ){
+    if ( app_start_address < base_addr || app_start_address > addr_limit ){
         /* Stay in bootloader */
         return;
     }

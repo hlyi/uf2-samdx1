@@ -3,9 +3,6 @@
 
 static uint32_t timerLow;
 uint32_t timerHigh, resetHorizon;
-#ifdef SRAM_BL_SIZE
-bool bootFromSram = false;
-#endif
 
 void __attribute__ ((noinline)) delay(uint32_t ms) {
     // These multipliers were determined empirically and are only approximate.
