@@ -91,14 +91,15 @@ extern int8_t led_tick_step;
     #define RESET_CONTROLLER RSTC
 #endif
 
+
 /**
  * \brief Check the application startup condition
  *
  */
 static void check_start_application(void) {
-    uint32_t app_start_address;
-
 #ifdef SRAM_BL_SIZE
+    register uint32_t app_start_address asm("r6") ;
+
     bool	boot_sram = *DBL_TAP_PTR == DBL_TAP_MAGIC_SRAM_BL;
     uint32_t	base_addr = boot_sram ? SRAM_BASE_ADDR : APP_START_ADDRESS;
     uint32_t	addr_limit = boot_sram ? SRAM_BASE_ADDR+SRAM_BL_SIZE : FLASH_SIZE;
@@ -110,6 +111,8 @@ static void check_start_application(void) {
     }
 
 #else
+    uint32_t app_start_address;
+
     /* Load the Reset Handler address of the application */
     app_start_address = *(uint32_t *)(APP_START_ADDRESS + 4);
 
@@ -181,11 +184,13 @@ static void check_start_application(void) {
 #endif
 
 #ifdef SRAM_BL_SIZE 
+    /* Rebase the vector table base address */
+    SCB->VTOR = (uint32_t) base_addr ;
+//    jump_to_app (app_start_address, *(uint32_t *)base_addr);
+//    register uint32_t tmp_start asm("r6") = app_start_address;
     /* Rebase the Stack Pointer */
     __set_MSP(*(uint32_t *)base_addr);
 
-    /* Rebase the vector table base address */
-    SCB->VTOR = (uint32_t) base_addr ;
 #else
     /* Rebase the Stack Pointer */
     __set_MSP(*(uint32_t *)APP_START_ADDRESS);
