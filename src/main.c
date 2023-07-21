@@ -98,6 +98,18 @@ extern int8_t led_tick_step;
 static void check_start_application(void) {
     uint32_t app_start_address;
 
+#ifdef SRAM_BL_SIZE
+    bool	boot_sram = *DBL_TAP_PTR == DBL_TAP_MAGIC_SRAM_BL;
+    uint32_t	base_addr = boot_sram ? SRAM_BASE_ADDR : APP_START_ADDRESS;
+    uint32_t	addr_limit = boot_sram ? SRAM_BASE_ADDR+SRAM_BL_SIZE : FLASH_SIZE;
+
+    app_start_address = *(uint32_t *)( base_addr + 4 );
+    if ( app_start_address < base_addr || app_start_address < addr_limit ){
+        /* Stay in bootloader */
+        return;
+    }
+
+#else
     /* Load the Reset Handler address of the application */
     app_start_address = *(uint32_t *)(APP_START_ADDRESS + 4);
 
@@ -109,6 +121,7 @@ static void check_start_application(void) {
         /* Stay in bootloader */
         return;
     }
+#endif
 
 #if defined(BOOT_LOAD_PIN)
     volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
@@ -144,6 +157,10 @@ static void check_start_application(void) {
     if (RESET_CONTROLLER->RCAUSE.bit.POR) {
         *DBL_TAP_PTR = 0;
     }
+#ifdef SRAM_BL_SIZE 
+    else if ( *DBL_TAP_PTR == DBL_TAP_MAGIC_SRAM_BL ) {
+    }
+#endif
     else if (*DBL_TAP_PTR == DBL_TAP_MAGIC) {
         *DBL_TAP_PTR = 0;
         return; // stay in bootloader
@@ -163,11 +180,19 @@ static void check_start_application(void) {
     RGBLED_set_color(COLOR_LEAVE);
 #endif
 
+#ifdef SRAM_BL_SIZE 
+    /* Rebase the Stack Pointer */
+    __set_MSP(*(uint32_t *)base_addr);
+
+    /* Rebase the vector table base address */
+    SCB->VTOR = (uint32_t) base_addr ;
+#else
     /* Rebase the Stack Pointer */
     __set_MSP(*(uint32_t *)APP_START_ADDRESS);
 
     /* Rebase the vector table base address */
     SCB->VTOR = ((uint32_t)APP_START_ADDRESS & SCB_VTOR_TBLOFF_Msk);
+#endif
 
     /* Jump to application Reset Handler in the application */
     asm("bx %0" ::"r"(app_start_address));
@@ -185,10 +210,6 @@ int main(void) {
     if (SCB->VTOR)
         while (1) {
         }
-
-#ifdef SRAM_BL_SIZE
-    bootFromSram = false;
-#endif
 
 #if defined(SAMD21)
     // Check for voltage too low, and set up brownout protection.

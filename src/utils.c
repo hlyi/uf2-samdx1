@@ -81,16 +81,13 @@ int writeNum(char *buf, uint32_t n, bool full) {
 
 void resetIntoApp() {
     // reset without waiting for double tap (only works for one reset)
-#ifdef SRAM_BL_SIZE
-	if ( bootFromSram) {
-		SCB->VTOR = SRAM_BASE_ADDR;
-                __set_MSP(*(uint32_t *)SRAM_BASE_ADDR);
-		uint32_t app_start_address = *(uint32_t *) (SRAM_BASE_ADDR +4);
-		asm("bx %0" ::"r"(app_start_address));
-	}
-#endif
     RGBLED_set_color(COLOR_LEAVE);
+#ifdef SRAM_BL_SIZE
+    if ( *DBL_TAP_PTR != DBL_TAP_MAGIC_SRAM_BL)
+	    *DBL_TAP_PTR = DBL_TAP_MAGIC_QUICK_BOOT;
+#else
     *DBL_TAP_PTR = DBL_TAP_MAGIC_QUICK_BOOT;
+#endif
     NVIC_SystemReset();
 }
 

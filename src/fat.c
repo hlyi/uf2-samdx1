@@ -242,12 +242,14 @@ void write_block(uint32_t block_no, uint8_t *data, bool quiet, WriteState *state
 #ifdef SRAM_BL_SIZE
 	if ( use_flash) {
         	flash_write_row((void *)bl->targetAddr, (void *)bl->data);
-		bootFromSram = false;
+		*DBL_TAP_PTR  = 0;
 	}else{
 		memcpy((void*)bl->targetAddr, (void*)bl->data, FLASH_ROW_SIZE);
 		if ( bl->targetAddr == SRAM_BASE_ADDR ){
 			uint32_t bootAddr = bl->data[4] | (bl->data[5]<<8) | (bl->data[6]<<16) | (bl->data[7]<<24);
-			bootFromSram = bootAddr > SRAM_BASE_ADDR && bootAddr < (SRAM_BASE_ADDR + SRAM_BL_SIZE);
+			if( bootAddr > SRAM_BASE_ADDR && bootAddr < (SRAM_BASE_ADDR + SRAM_BL_SIZE) ){
+				*DBL_TAP_PTR  = DBL_TAP_MAGIC_SRAM_BL;
+			}
 		}
 	}
 #else
