@@ -183,7 +183,7 @@ int main(void) {
 
     logmsg("Update successful!");
 
-#ifdef SRAM_BL_SIZE
+#if ( defined(SRAM_BL_SIZE) && (!defined(USE_STD_FLASH_BL) ) )
     *DBL_TAP_PTR = 0;
 #endif
 
@@ -195,7 +195,7 @@ int main(void) {
     // bootloader doesn't run us a second time. We don't need to erase to write
     // zeros. The remainder of the write unit will be set to 1s which should
     // preserve the existing values but its not critical.
-#if (! defined(SRAM_BL_SIZE) )
+#if ( (! defined(SRAM_BL_SIZE)) || defined(USE_STD_FLASH_BL) )
     uint32_t zeros[2] = {0, 0};
     flash_write_words((void *)(BOOTLOADER_K * 1024), zeros, 2);
 #endif
