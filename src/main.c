@@ -104,6 +104,18 @@ static void check_start_application(void) {
     uint32_t    addr_limit = boot_sram ? SRAM_BASE_ADDR+SRAM_BL_SIZE : FLASH_SIZE;
 
     app_start_address = *(uint32_t *)( base_addr + 4 );
+
+    if (*DBL_TAP_PTR == DBL_TAP_MAGIC_CHAINLOADER ) {
+        uint32_t new_base_addr = *(volatile uint32_t *)( (uint32_t ) DBL_TAP_PTR - 4);
+        if ( (new_base_addr >= APP_START_ADDRESS) && (new_base_addr < FLASH_SIZE) ){
+            // has chainloader magic and chainloader address is within flash range
+            uint32_t new_app_start = *(uint32_t *)(new_base_addr + 4);
+            if ( new_app_start >= new_base_addr && new_app_start < FLASH_SIZE ) {
+                app_start_address = new_app_start;
+                base_addr = new_base_addr;
+            }
+        }
+    }
     if ( app_start_address < base_addr || app_start_address > addr_limit ){
         /* Stay in bootloader */
         return;
