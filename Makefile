@@ -56,6 +56,8 @@ BOOTLOADER_SIZE=16384
 SELF_LINKER_SCRIPT=scripts/samd51j19a_self.ld
 endif
 
+REBOOT_LINKER_SCRIPT = $(SELF_LINKER_SCRIPT)
+
 LDFLAGS= $(COMMON_FLAGS) \
 -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common \
 -Wl,--warn-section-align \
@@ -104,17 +106,22 @@ SOURCES = $(COMMON_SRC) \
 SELF_SOURCES = $(COMMON_SRC) \
 	src/selfmain.c
 
+REBOOT_SOURCES = $(COMMON_SRC) \
+	src/rebootmain.c
+
 OBJECTS = $(patsubst src/%.c,$(BUILD_PATH)/%.o,$(SOURCES))
 SELF_OBJECTS = $(patsubst src/%.c,$(BUILD_PATH)/%.o,$(SELF_SOURCES)) $(BUILD_PATH)/selfdata.o
+REBOOT_OBJECTS = $(patsubst src/%.c,$(BUILD_PATH)/%.o,$(REBOOT_SOURCES))
 
 NAME=bootloader-$(BOARD)-$(UF2_VERSION_BASE)
 EXECUTABLE=$(BUILD_PATH)/$(NAME).bin
 SELF_EXECUTABLE=$(BUILD_PATH)/update-$(NAME).uf2
 SELF_EXECUTABLE_INO=$(BUILD_PATH)/update-$(NAME).ino
+REBOOT_EXECUTABLE=$(BUILD_PATH)/reboot-$(NAME).uf2
 
 SUBMODULES = lib/uf2/README.md
 
-all: $(SUBMODULES) dirs $(EXECUTABLE) $(SELF_EXECUTABLE)
+all: $(SUBMODULES) dirs $(EXECUTABLE) $(SELF_EXECUTABLE) $(REBOOT_EXECUTABLE)
 
 r: run
 b: burn
@@ -191,6 +198,13 @@ $(SELF_EXECUTABLE): $(SELF_OBJECTS)
 		 -Wl,-Map,$(BUILD_PATH)/update-$(NAME).map -o $(BUILD_PATH)/update-$(NAME).elf $(SELF_OBJECTS)
 	arm-none-eabi-objcopy -O binary $(BUILD_PATH)/update-$(NAME).elf $(BUILD_PATH)/update-$(NAME).bin
 	python3 lib/uf2/utils/uf2conv.py -b $(UPDATE_BL_OFST) -c -o $@ $(BUILD_PATH)/update-$(NAME).bin
+
+$(REBOOT_EXECUTABLE): $(REBOOT_OBJECTS)
+	$(CC) -L$(BUILD_PATH) $(LDFLAGS) \
+		 -T$(REBOOT_LINKER_SCRIPT) \
+		 -Wl,-Map,$(BUILD_PATH)/reboot-$(NAME).map -o $(BUILD_PATH)/reboot-$(NAME).elf $(REBOOT_OBJECTS)
+	arm-none-eabi-objcopy -O binary $(BUILD_PATH)/reboot-$(NAME).elf $(BUILD_PATH)/reboot-$(NAME).bin
+	python3 lib/uf2/utils/uf2conv.py -b $(UPDATE_BL_OFST) -c -o $@ $(BUILD_PATH)/reboot-$(NAME).bin
 
 $(BUILD_PATH)/%.o: src/%.c $(wildcard inc/*.h boards/*/*.h) $(BUILD_PATH)/uf2_version.h
 	echo "$<"
